@@ -102,9 +102,25 @@
           <!-- Info panel (populates with info from the web map) -->
           <calcite-panel
             heading="Senderismo en Parques Nacionales"
+            class="senderismoPN"
             data-panel-id="information"
             hidden
           >
+            <div class="infoContainer">
+              <div class="img-container">
+                <img src="PN.jpg" alt="Parques Nacionales fotografia" class="img" />
+              </div>
+
+              <p class="textoInformacion">
+                Esta aplicación explora el senderismo dentro del territorio
+                español. <br />
+                Podrás navegar entre vistas 2D y 3D con sus respectivas
+                funcionalidades. <br />
+                Además, todos los Parques Nacionales, cuentan con un bookmark
+                que acerca a la vista 3D del Parque.
+                <br>Explora sus opciones en las diferentes vistas.
+              </p>
+            </div>
           </calcite-panel>
         </calcite-shell-panel>
 
@@ -126,14 +142,14 @@
         <div id="info-content"></div>
 
         <div id="viewDiv"></div>
-        
+        <div id="bookmarks-container"></div>
 
         <div id="infoDiv">
           <input
             class="esri-component esri-widget--button esri-widget esri-interactive boton mostrar"
             type="button"
             id="switch-btn"
-            value="3D"
+            value="2D"
           />
         </div>
       </calcite-shell>
