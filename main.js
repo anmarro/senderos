@@ -20,6 +20,12 @@ require([
   "esri/geometry/Extent",
   "esri/Ground",
   "esri/layers/ElevationLayer",
+  "esri/widgets/Daylight",
+  "esri/widgets/DirectLineMeasurement3D",
+  "esri/widgets/ElevationProfile",
+  "esri/widgets/Weather",
+  "esri/widgets/Popup",
+  "esri/PopupTemplate",
 ], function (
   Map,
   MapView,
@@ -41,7 +47,13 @@ require([
   GroupLayer,
   Extent,
   Ground,
-  ElevationLayer
+  ElevationLayer,
+  Daylight,
+  DirectLineMeasurement3D,
+  ElevationProfile,
+  Weather,
+  Popup,
+  PopupTemplate
 ) {
   let esriElevation = new ElevationLayer({
     url: "https://tiledbasemaps.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer",
@@ -83,15 +95,13 @@ require([
   });
 
   // Inicializar la SceneView (vista 3D)
-  let scene = new SceneView({
+  window.scene = new SceneView({
     map: map,
     container: null,
     ground: {
       layers: [esriElevation], // Cargar las elevaciones del servicio
     },
   });
-
-
 
   // Inicializar el objeto de configuración
   appConfig.mapView = mapVista;
@@ -134,58 +144,116 @@ require([
     }
   }
 
-  // // convenience function for creating either a 2D or 3D view dependant on the type parameter
-  // function createView(params, type) {
-  //   let view;
-  //   if (type === "2d") {
-  //     view = new MapView(params);
-  //     return view;
-  //   } else {
-  //     view = new SceneView(params);
-  //   }
-  //   return view;
-  // }
-
   mapVista.ui.move("zoom", "top-left");
+  //popup
+  const popup = {
+    title: "Senderismo en Parques Nacionales",
+    content: [
+      {
+        type: "fields",
+        fieldInfos: [
+          {
+            fieldName: "Name",
+          },
+          {
+            fieldName: "Descript",
+          },
+        ],
+      },
+    ],
+  };
+  const popupFedme = {
+    title: "GR, PR y SL",
+    content: [
+      {
+        type: "fields",
+        fieldInfos: [
+          {
+            fieldName: "Nombre",
+          },
+          {
+            fieldName: "Longitud",
+          },
+        ],
+      },
+    ],
+  };
+  const popupviasVerdes = {
+    title: "Vías verdes",
+    content: [
+      {
+        type: "fields",
+        fieldInfos: [
+          {
+            fieldName: "Nombre",
+          },
+          {
+            fieldName: "Recorrido",
+          },
+          {
+            fieldName: "Longitud",
+          },
+          {
+            fieldName: "Provincia",
+          },
+          {
+            fieldName: "Comunidad",
+          },
+          {
+            fieldName: "Estado",
+          },
+          {
+            fieldName: "Firme",
+          },
+        ],
+      },
+    ],
+  };
+  const popupCaminos = {
+    title: "Caminos naturales",
+    content: [
+      {
+        type: "fields",
+        fieldInfos: [
+          {
+            fieldName: "id",
+          },
+          {
+            fieldName: "etapa",
+          },
+          {
+            fieldName: "long_etapa",
+          },
+          {
+            fieldName: "camino",
+          },
+          {
+            fieldName: "long_camin",
+          },
+        ],
+      },
+    ],
+  };
 
-  // // Cambiar entre MapView (2D) y SceneView (3D)
-  // switchButton.addEventListener("click", function () {
-  //   if (activeView === mapView) {
-  //     // Si estamos en SceneView (3D), cambiamos a MapView (2D)
-  //     mapView.container = "viewDiv"; // Activamos MapView
-  //     sceneView.container = null; // Desactivamos SceneView
-  //     activeView = mapView;
-  //     switchButton.classList.remove("boton");
-  //     switchButton.classList.add("mostrar");
-  //   } else {
-  //     // Si la vista activa es MapView (2D), ocultamos el botón
-  //     switchButton.classList.add("boton");
-  //     switchButton.classList.remove("mostrar");
-  //     mapView.container = null; // Activamos MapView
-  //     sceneView.container = "viewDiv"; // Desactivamos SceneView
-  //     activeView = sceneView;
-  //   }
-  // });
-
-  // Función para manejar la visibilidad del botón
-  // function updateButtonVisibility() {
-  //   if (activeView === sceneView) {
-  //     // Si la vista activa es SceneView (3D), mostramos el botón
-  //     switchButton.classList.add("mostrar");
-  //     switchButton.classList.remove("boton");
-  //   } else {
-  //     // Si la vista activa es MapView (2D), ocultamos el botón
-  //     switchButton.classList.add("boton");
-  //     switchButton.classList.remove("mostrar");
-  //   }
-  // }
-
-  // // Llamamos a la función inicialmente para asegurarnos de que el botón se maneje correctamente
-  // updateButtonVisibility();
-
-  // // Actualizamos la visibilidad del botón cada vez que cambiamos la vista
-  // mapView.watch("viewpoint", updateButtonVisibility);
-  // sceneView.watch("viewpoint", updateButtonVisibility);
+  const popupBTT = {
+    title: "BTT",
+    content: [
+      {
+        type: "fields",
+        fieldInfos: [
+          {
+            fieldName: "id",
+          },
+          {
+            fieldName: "nombre",
+          },
+          {
+            fieldName: "longitud",
+          },
+        ],
+      },
+    ],
+  };
 
   //Features
   //Parques Nacionales
@@ -288,67 +356,83 @@ require([
 
   const timanfaya = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/PN_Timanfaya/FeatureServer",
-    visible: false,
+    visible: true,
+    popupTemplate: popup,
   });
   const teide = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/PN_Teide/FeatureServer",
-    visible: false,
+    visible: true,
+    popupTemplate: popup,
   });
   const taburiente = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/PN_Taburiente/FeatureServer",
-    visible: false,
+    visible: true,
+    popupTemplate: popup,
   });
   const sierraNieves = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/_P_N_Sierra_Nieves/FeatureServer",
-    visible: false,
+    visible: true,
+    popupTemplate: popup,
   });
   const sierraNevada = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/_P_N_Sierra_Nevada/FeatureServer",
-    visible: false,
+    visible: true,
+    popupTemplate: popup,
   });
   const picosEuropa = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/_P_N_Picos_Europa/FeatureServer",
-    visible: false,
+    visible: true,
+    popupTemplate: popup,
   });
   const ordesa = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/P_N_Ordesa/FeatureServer",
-    visible: false,
+    visible: true,
+    popupTemplate: popup,
   });
   const monfrague = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/P_N_Monfrag%C3%BCe/FeatureServer",
-    visible: false,
+    visible: true,
+    popupTemplate: popup,
   });
   const islasAtlanticas = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/P_N_Islas_Atlanticas/FeatureServer",
-    visible: false,
+    visible: true,
+    popupTemplate: popup,
   });
   const guadarrama = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/P_N_Guadarrama/FeatureServer",
-    visible: false,
+    visible: true,
+    popupTemplate: popup,
   });
   const garajonay = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/P_N_Garajonay/FeatureServer",
-    visible: false,
+    visible: true,
+    popupTemplate: popup,
   });
   const donana = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/P_N_Donana/FeatureServer",
-    visible: false,
+    visible: true,
+    popupTemplate: popup,
   });
   const daimiel = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/P_N_Daimiel/FeatureServer",
-    visible: false,
+    visible: true,
+    popupTemplate: popup,
   });
   const cabaneros = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/P_N_Cabaneros/FeatureServer",
-    visible: false,
+    visible: true,
+    popupTemplate: popup,
   });
   const cabrera = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/P_N_Archipielago_Cabrera/FeatureServer",
-    visible: false,
+    visible: true,
+    popupTemplate: popup,
   });
   const aiguestortes = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/P_N_Aig%C3%BCestortes/FeatureServer",
-    visible: false,
+    visible: true,
+    popupTemplate: popup,
   });
 
   // Arreglo con las capas y sus extents
@@ -509,12 +593,15 @@ require([
   //FEDME
   const gran = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/Gran_Recorrido/FeatureServer",
+    popupTemplate: popupFedme,
   });
   const pequeño = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/Peque%C3%B1o_Recorrido/FeatureServer",
+    popupTemplate: popupFedme,
   });
   const local = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/Sendero_Local/FeatureServer",
+    popupTemplate: popupFedme,
   });
   const groupFedme = new GroupLayer({
     title: "Senderos FEDME",
@@ -527,6 +614,7 @@ require([
   const verdes = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/Vias_Verdes/FeatureServer",
     visible: false,
+    popupTemplate: popupviasVerdes,
   });
   map.add(verdes);
 
@@ -534,13 +622,34 @@ require([
   const caminosNaturales = new FeatureLayer({
     url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/Caminos_Naturales/FeatureServer",
     visible: false,
+    popupTemplate: popupCaminos,
+    renderer: {
+      type: "simple",
+      symbol: {
+        type: "simple-line", // autocasts as new SimpleMarkerSymbol()
+        size: 6,
+        color: "blue",
+      },
+    },
   });
   map.add(caminosNaturales);
+
+  const rutasBTT = new FeatureLayer({
+    url: "https://services7.arcgis.com/2UHDWDNEtFa5iQKi/arcgis/rest/services/Rutas_BTT/FeatureServer",
+    visible: false,
+    popupTemplate: popupBTT,
+  });
+  map.add(rutasBTT);
 
   //widgets
   const basemaps = new BasemapGallery({
     view: mapVista,
     container: "basemaps-container",
+  });
+  //legend
+  const legend = new Legend({
+    view: mapVista,
+    container: "legend-container",
   });
   //home widget
   let homeWidget = new Home({
@@ -748,48 +857,6 @@ require([
     ],
   });
 
-  // // Mapeo entre el nombre del bookmark y la capa correspondiente
-  // const parqueMap = {
-  //   "Parque Nacional Timanfaya": "timanfaya",
-  //   "Parque Nacional Picos de Europa": "picosEuropa",
-  //   "Parque Nacional Ordesa y Monte Perdido": "ordesa",
-  //   "Parque Nacional Aigüestortes i Estany de Sant Maurici": "aiguestortes",
-  //   "Parque Nacional Monfragüe": "monfrague",
-  //   "Parque Nacional Cabañeros": "cabaneros",
-  //   "Parque Nacional Tablas de Daimiel": "daimiel",
-  //   "Parque Nacional Sierra de Guadarrama": "guadarrama",
-  //   "Parque Nacional Doñana": "donana",
-  //   "Parque Nacional Sierra Nevada": "sierraNevada",
-  //   "Parque Nacional Garajonay": "garajonay",
-  //   "Parque Nacional Teide": "teide",
-  //   "Parque Nacional Taburiente": "taburiente",
-  //   "Parque Nacional Islas Atlánticas": "islasAtlanticas",
-  //   "Parque Nacional Cabrera": "cabrera",
-  // };
-  // Evento para manejar la selección del bookmark
-  // Verificar si view.extent está disponible y ocultar las capas
-  homeWidget.on("go", () => {
-    groupPN.layers.forEach((layer) => {
-      layer.visible = false;
-    });
-  });
-
-  // Función que maneja la visibilidad del botón según la vista
-  // Obtener el botón desde el HTML
-
-  // Mostrar el botón solo en la vista 3D
-  // Función que maneja la visibilidad del botón
-  // function toggleButtonView() {
-  //   if (activeView === mapView) {
-  //     // Ocultar el botón en vista 2D
-  //     switchButton.classList.add("boton");
-  //   } else {
-  //     // Mostrar el botón en vista 3D
-  //     switchButton.classList.remove("boton");
-  //   }
-  // }
-  // toggleButtonView();
-
   bookmarks.bookmarks.forEach(() => {
     bookmarks.on("bookmark-select", (event) => {
       // Obtener el nombre del bookmark seleccionado
@@ -816,6 +883,24 @@ require([
           extent: selectedExtent.extent, // Usar el extent del parque nacional
         });
       }
+      if (is3D) {
+        activeViewpoint.scale /= scaleConversionFactor;
+
+        // if the input view is a SceneView, set the viewpoint on the
+        // mapView instance. Set the container on the mapView and flag
+        // it as the active view
+        appConfig.mapView.viewpoint = activeViewpoint;
+        appConfig.mapView.container = appConfig.container;
+        appConfig.activeView = appConfig.mapView;
+        switchButton.value = "3D";
+      } else {
+        activeViewpoint.scale *= scaleConversionFactor;
+
+        appConfig.sceneView.viewpoint = activeViewpoint;
+        appConfig.sceneView.container = appConfig.container;
+        appConfig.activeView = appConfig.sceneView;
+        switchButton.value = "2D";
+      }
     });
   });
 
@@ -830,11 +915,6 @@ require([
     dragEnabled: true,
     visibilityAppearance: "checkbox",
     container: "layers-container",
-  });
-  //legend
-  const legend = new Legend({
-    view: mapVista,
-    container: "legend-container",
   });
 
   //widgets medir distancia y area y funcionalidad para expanderlo y contraerlo
@@ -854,7 +934,7 @@ require([
   mapVista.ui.add(measurementExpand, "top-right");
 
   //Full screen widget
-  fullscreen = new Fullscreen({
+  let fullscreen = new Fullscreen({
     view: mapVista,
   });
   mapVista.ui.add(fullscreen, "top-left");
@@ -878,6 +958,77 @@ require([
   mapVista.ui.add(scaleBar, {
     position: "bottom-left",
   });
+
+  //Daylight
+  const daylight = new Daylight({
+    view: scene,
+    playSpeedMultiplier: 2,
+    visibleElements: {
+      timezone: true,
+      datePicker: true,
+      playButtons: true,
+      sunLightingToggle: true,
+      shadowsToggle: true,
+    },
+  });
+  const daylightExpand = new Expand({
+    view: scene,
+    content: daylight,
+    expanded: false,
+  });
+
+  scene.ui.add(daylightExpand, "top-right");
+
+  //medidas 3d
+  let measurementWidget = new DirectLineMeasurement3D({
+    view: scene,
+  });
+  const measureExpand = new Expand({
+    view: scene,
+    content: measurementWidget,
+    expanded: false,
+  });
+
+  scene.ui.add(measureExpand, "top-right");
+
+  //elevation profile
+  const elevationProfile = new ElevationProfile({
+    view: scene,
+    profiles: [
+      {
+        // displays elevation values from Map.ground
+        type: "ground", //autocasts as new ElevationProfileLineGround()
+        color: "#61d4a4",
+        title: "Ground elevation",
+      },
+      {
+        // displays elevation values from a custom source
+        type: "query",
+        source: new ElevationLayer({
+          url: "https://elevation3d.arcgis.com/arcgis/rest/../Terrain3D/ImageServer",
+        }),
+        color: "#d46189",
+        title: "Custom elevation",
+      },
+    ],
+  });
+  const elevationProfileExpand = new Expand({
+    view: scene,
+    content: elevationProfile,
+    expanded: false,
+  });
+  scene.ui.add(elevationProfileExpand, "top-right");
+
+  //weather
+  let weather = new Weather({
+    view: scene,
+  });
+  const weatherExpand = new Expand({
+    view: scene,
+    content: weather,
+    expanded: false,
+  });
+  scene.ui.add(weatherExpand, "top-right");
 
   let activeWidget;
 

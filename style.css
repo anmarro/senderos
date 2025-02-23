@@ -9,8 +9,9 @@ body,
 
 #infoDiv {
   position: absolute;
-  top: 45px;
-  left: 150px;
+  top: 16px;
+  left: 110px;
+
 }
 
 #infoDiv input {
@@ -27,20 +28,21 @@ calcite-loader {
   justify-self: center;
 }
 
-#info-content {
+/* #info-content {
   padding: 0.75rem;
-}
+
+} */
 
 calcite-rating {
   margin-top: 0.25rem;
 }
 
-#topbar {
+/* #topbar {
   background: #fff;
   padding: 10px;
-}
+} */
 
-.action-button {
+/* .action-button {
   font-size: 16px;
   background-color: transparent;
   border: 1px solid #d3d3d3;
@@ -49,9 +51,9 @@ calcite-rating {
   width: 32px;
   text-align: center;
   box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
-}
+} */
 
-.action-button:hover,
+/* .action-button:hover,
 .action-button:focus {
   background: #0079c1;
   color: #e4e4e4;
@@ -59,4 +61,4 @@ calcite-rating {
 .active {
   background: #0079c1;
   color: #e4e4e4;
-}
+} */
