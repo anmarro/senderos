@@ -1,0 +1,145 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+
+    <title>Senderismo Parques Nacionales</title>
+    <link rel="stylesheet" href="style.css" />
+
+    <script
+      type="module"
+      src="https://js.arcgis.com/calcite-components/2.13.2/calcite.esm.js"
+    ></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://js.arcgis.com/calcite-components/2.13.2/calcite.css"
+    />
+    <script src="https://js.arcgis.com/4.31/"></script>
+    <link
+      disabled
+      id="arcgis-maps-sdk-theme-dark"
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.31/esri/themes/dark/main.css"
+    />
+
+    <link
+      id="arcgis-maps-sdk-theme-light"
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.31/esri/themes/light/main.css"
+    />
+
+    <body>
+      <calcite-loader></calcite-loader>
+      <calcite-shell content-behind hidden>
+        <calcite-shell-panel slot="panel-start" display-mode="float">
+          <calcite-action-bar slot="action-bar">
+            <calcite-action
+              data-action-id="layers"
+              icon="layers"
+              text="Capas"
+            ></calcite-action>
+            <calcite-action
+              data-action-id="basemaps"
+              icon="basemap"
+              text="Mapas base"
+            ></calcite-action>
+            <calcite-action
+              data-action-id="legend"
+              icon="legend"
+              text="Leyenda"
+            ></calcite-action>
+            <!-- <calcite-action
+              data-action-id="bookmarks"
+              icon="bookmark"
+              text="Bookmarks"
+            ></calcite-action> -->
+
+            <calcite-action
+              data-action-id="information"
+              icon="information"
+              text="Información"
+            ></calcite-action>
+          </calcite-action-bar>
+
+          <!-- Map-specific panels (each one provides a div for a ArcGIS Maps SDK for JavaScript widget) -->
+          <calcite-panel
+            heading="Capas"
+            height="l"
+            data-panel-id="layers"
+            hidden
+          >
+            <div id="layers-container"></div>
+          </calcite-panel>
+          <calcite-panel
+            heading="Mapas base"
+            height="l"
+            data-panel-id="basemaps"
+            hidden
+          >
+            <div id="basemaps-container"></div>
+          </calcite-panel>
+          <calcite-panel
+            heading="Leyenda"
+            height="l"
+            data-panel-id="legend"
+            hidden
+          >
+            <div id="legend-container"></div>
+          </calcite-panel>
+          <!-- <calcite-panel
+            heading="Bookmarks"
+            height="l"
+            data-panel-id="bookmarks"
+            hidden
+          >
+            <div id="bookmarks-container"></div> -->
+          <div id="basemapGalleryDiv"></div>
+
+          <!-- Info panel (populates with info from the web map) -->
+          <calcite-panel
+            heading="Senderismo en Parques Nacionales"
+            data-panel-id="information"
+            hidden
+          >
+          </calcite-panel>
+        </calcite-shell-panel>
+
+        <div id="topbar">
+          <button
+            class="action-button esri-icon-measure-area"
+            id="areaButton"
+            type="button"
+            title="Measure area"
+          ></button>
+          <button
+            class="action-button esri-icon-measure-line"
+            id="distanceButton"
+            type="button"
+            title="Measure distance between two or more points"
+          ></button>
+        </div>
+
+        <div id="info-content"></div>
+
+        <div id="viewDiv"></div>
+        <div id="bookmarks-container"></div>
+
+        
+          <div id="infoDiv">
+            <input
+              class="esri-component esri-widget--button esri-widget esri-interactive boton mostrar"
+              type="button"
+              id="switch-btn"
+              value="3D"
+            />
+          </div>
+      </calcite-shell>
+
+      <script src="main.js"></script>
+    </body>
+  </head>
+</html>
