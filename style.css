@@ -7,12 +7,15 @@ body,
   width: 100%;
 }
 
-#infoDiv input[type="button"] {
+#infoDiv {
   position: absolute;
+  top: 45px;
+  left: 150px;
+}
+
+#infoDiv input {
   border: none;
-  z-index: 1;
-  top: 140px;
-  left: 640px;
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px;
 }
 
 body {
@@ -57,11 +60,3 @@ calcite-rating {
   background: #0079c1;
   color: #e4e4e4;
 }
-.boton {
-  display: none;
-}
-.mostrar {
-  display: block;
-  z-index: 10;
-}
-

@@ -48,29 +48,105 @@ require([
   });
   // Botón de cambio de vista
   const switchButton = document.getElementById("switch-btn");
-  
+
+  const appConfig = {
+    mapView: null,
+    sceneView: null,
+    activeView: null,
+    container: "viewDiv", // use same container for views
+  };
+
+  const initialViewParams = {
+    zoom: 6,
+    center: [-4.5, 38.5],
+    padding: {
+      left: 49,
+    },
+    container: appConfig.container,
+  };
+
   const map = new Map({
     basemap: "satellite",
     ground: "world-elevation",
   });
 
-  let mapView = new MapView({
+  let mapVista = new MapView({
     map,
     container: "viewDiv",
+    zoom: initialViewParams.zoom,
+    center: initialViewParams.center,
     zoom: 6,
     center: [-4.5, 38.5],
     padding: {
       left: 49,
     },
   });
+
   // Inicializar la SceneView (vista 3D)
-  let sceneView = new SceneView({
-    map,
+  let scene = new SceneView({
+    map: map,
+    container: null,
+    ground: {
+      layers: [esriElevation], // Cargar las elevaciones del servicio
+    },
   });
 
-  let activeView = mapView;
 
-  activeView.ui.move("zoom", "top-left");
+
+  // Inicializar el objeto de configuración
+  appConfig.mapView = mapVista;
+  appConfig.sceneView = scene;
+  appConfig.activeView = appConfig.mapView;
+
+  // switch the view between 2D and 3D each time the button is clicked
+  switchButton.addEventListener("click", () => {
+    switchView();
+  });
+
+  // Switches the view from 2D to 3D and vice versa
+  function switchView() {
+    const is3D = appConfig.activeView.type === "3d";
+    const activeViewpoint = appConfig.activeView.viewpoint.clone();
+    // Compute scale conversion factor with cosine of latitude to account for distance distortion as latitude moves away from the equator
+    const latitude = appConfig.activeView.center.latitude;
+    const scaleConversionFactor = Math.cos((latitude * Math.PI) / 180.0);
+
+    // remove the reference to the container for the previous view
+    appConfig.activeView.container = null;
+
+    if (is3D) {
+      activeViewpoint.scale /= scaleConversionFactor;
+
+      // if the input view is a SceneView, set the viewpoint on the
+      // mapView instance. Set the container on the mapView and flag
+      // it as the active view
+      appConfig.mapView.viewpoint = activeViewpoint;
+      appConfig.mapView.container = appConfig.container;
+      appConfig.activeView = appConfig.mapView;
+      switchButton.value = "3D";
+    } else {
+      activeViewpoint.scale *= scaleConversionFactor;
+
+      appConfig.sceneView.viewpoint = activeViewpoint;
+      appConfig.sceneView.container = appConfig.container;
+      appConfig.activeView = appConfig.sceneView;
+      switchButton.value = "2D";
+    }
+  }
+
+  // // convenience function for creating either a 2D or 3D view dependant on the type parameter
+  // function createView(params, type) {
+  //   let view;
+  //   if (type === "2d") {
+  //     view = new MapView(params);
+  //     return view;
+  //   } else {
+  //     view = new SceneView(params);
+  //   }
+  //   return view;
+  // }
+
+  mapVista.ui.move("zoom", "top-left");
 
   // // Cambiar entre MapView (2D) y SceneView (3D)
   // switchButton.addEventListener("click", function () {
@@ -463,19 +539,19 @@ require([
 
   //widgets
   const basemaps = new BasemapGallery({
-    view: activeView,
+    view: mapVista,
     container: "basemaps-container",
   });
   //home widget
   let homeWidget = new Home({
-    view: activeView,
+    view: mapVista,
   });
   // adds the home widget to the top left corner of the MapView
-  activeView.ui.add(homeWidget, "top-left");
+  mapVista.ui.add(homeWidget, "top-left");
 
   //bookmark
   const bookmarks = new Bookmarks({
-    view: activeView,
+    view: mapVista,
     container: "bookmarks-container",
     visibleElements: {
       addBookmarkButton: true,
@@ -744,62 +820,62 @@ require([
   });
 
   const bkExpand = new Expand({
-    view: activeView,
+    view: mapVista,
     content: bookmarks,
     expanded: true,
   });
-  activeView.ui.add(bkExpand, "top-right");
+  mapVista.ui.add(bkExpand, "top-right");
   const layerList = new LayerList({
-    view: activeView,
+    view: mapVista,
     dragEnabled: true,
     visibilityAppearance: "checkbox",
     container: "layers-container",
   });
   //legend
   const legend = new Legend({
-    view: activeView,
+    view: mapVista,
     container: "legend-container",
   });
 
   //widgets medir distancia y area y funcionalidad para expanderlo y contraerlo
   // create the measurement widgets and hide them by default
   const distanceMeasurement2D = new DistanceMeasurement2D({
-    view: activeView,
+    view: mapVista,
     visible: false,
   });
 
   // Crear un widget Expand para manejar la expansión/contracción de los botones de medición
   const measurementExpand = new Expand({
-    view: activeView,
+    view: mapVista,
     content: document.getElementById("topbar"), // Contenedor de los botones
     expandIcon: "measure-line", // Icono de medición
     expanded: false, // Inicia contraído
   });
-  activeView.ui.add(measurementExpand, "top-right");
+  mapVista.ui.add(measurementExpand, "top-right");
 
   //Full screen widget
   fullscreen = new Fullscreen({
-    view: activeView,
+    view: mapVista,
   });
-  activeView.ui.add(fullscreen, "top-left");
+  mapVista.ui.add(fullscreen, "top-left");
 
   //locate
   let locateWidget = new Locate({
-    view: activeView, // Attaches the Locate button to the view
+    view: mapVista, // Attaches the Locate button to the view
     graphic: new Graphic({
       symbol: { type: "simple-marker" }, // overwrites the default symbol used for the
       // graphic placed at the location of the user when found
     }),
   });
 
-  activeView.ui.add(locateWidget, "top-left");
+  mapVista.ui.add(locateWidget, "top-left");
 
   //scalebar
   let scaleBar = new ScaleBar({
-    view: activeView,
+    view: mapVista,
   });
   // Add widget to the bottom left corner of the view
-  activeView.ui.add(scaleBar, {
+  mapVista.ui.add(scaleBar, {
     position: "bottom-left",
   });
 
